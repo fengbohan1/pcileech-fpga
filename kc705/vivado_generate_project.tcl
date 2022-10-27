@@ -1,6 +1,6 @@
 #
-# Vivado generated .tcl for creating the PCILeech_NeTV2 vivado project.
-# Run from within "Vivado Tcl Shell" with command: source PCILeech_NeTV2_100T.tcl -notrace
+# Vivado generated .tcl for creating the PCILeech_kc705 vivado project.
+# Run from within "Vivado Tcl Shell" with command: source PCILeech_kc705_100T.tcl -notrace
 #
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
@@ -12,7 +12,7 @@ if { [info exists ::origin_dir_loc] } {
 }
 
 # Set the project name
-set _xil_proj_name_ "PCILeech_NeTV2"
+set _xil_proj_name_ "PCILeech_kc705"
 
 # Use project name variable, if specified in the tcl shell
 if { [info exists ::user_project_name] } {
@@ -68,7 +68,7 @@ if { $::argc > 0 } {
 }
 
 # Set the directory path for the original project from where this script was exported
-set orig_proj_dir "[file normalize "$origin_dir/PCILeech_NeTV2"]"
+set orig_proj_dir "[file normalize "$origin_dir/PCILeech_kc705"]"
 
 # Create project
 create_project ${_xil_proj_name_} ./${_xil_proj_name_} -part xc7k325tffg900-2
@@ -116,7 +116,7 @@ set files [list \
  [file normalize "${origin_dir}/src/pcileech_pcie_cfg_a7.sv"]\
  [file normalize "${origin_dir}/src/pcileech_pcie_tlp_a7.sv"]\
  [file normalize "${origin_dir}/src/pcileech_pcie_cfgspace_shadow.sv"]\
- [file normalize "${origin_dir}/src/pcileech_netv2_top.sv"]\
+ [file normalize "${origin_dir}/src/PCILeech_kc705_top.sv"]\
 ]
 set imported_files [import_files -fileset sources_1 $files]
 
@@ -168,14 +168,14 @@ set file "src/pcileech_pcie_cfgspace_shadow.sv"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
-set file "src/pcileech_netv2_top.sv"
+set file "src/PCILeech_kc705_top.sv"
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
-set_property -name "top" -value "pcileech_netv2_top" -objects $obj
+set_property -name "top" -value "PCILeech_kc705_top" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 
 
@@ -485,17 +485,17 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 set obj [get_filesets constrs_1]
 
 # Add/Import constrs file and set constrs file properties
-set file "[file normalize ${origin_dir}/src/netv2.xdc]"
+set file "[file normalize ${origin_dir}/src/fpga.xdc]"
 set file_imported [import_files -fileset constrs_1 [list $file]]
-set file "src/netv2.xdc"
+set file "src/fpga.xdc"
 set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
 set_property -name "file_type" -value "XDC" -objects $file_obj
 
 # Set 'constrs_1' fileset properties
 set obj [get_filesets constrs_1]
-set_property -name "target_constrs_file" -value "$proj_dir/${_xil_proj_name_}.srcs/constrs_1/imports/src/netv2.xdc" -objects $obj
+set_property -name "target_constrs_file" -value "$proj_dir/${_xil_proj_name_}.srcs/constrs_1/imports/src/fpga.xdc" -objects $obj
 set_property -name "target_part" -value "xc7k325tffg900-2" -objects $obj
-set_property -name "target_ucf" -value "$proj_dir/${_xil_proj_name_}.srcs/constrs_1/imports/src/netv2.xdc" -objects $obj
+set_property -name "target_ucf" -value "$proj_dir/${_xil_proj_name_}.srcs/constrs_1/imports/src/fpga.xdc" -objects $obj
 
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
@@ -508,7 +508,7 @@ set obj [get_filesets sim_1]
 
 # Set 'sim_1' fileset properties
 set obj [get_filesets sim_1]
-set_property -name "top" -value "pcileech_netv2_top" -objects $obj
+set_property -name "top" -value "PCILeech_kc705_top" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 

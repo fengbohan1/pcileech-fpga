@@ -1,7 +1,7 @@
 //
 // PCILeech FPGA.
 //
-// Top module for the NeTV2 Artix-7 board.
+// Top module for the kc705 board.
 //
 // (c) Ulf Frisk, 2019-2020
 // Author: Ulf Frisk, pcileech@frizk.net
@@ -10,7 +10,7 @@
 `timescale 1ns / 1ps
 `include "pcileech_header.svh"
 
-module pcileech_netv2_top #(
+module pcileech_kc705_top #(
     // DEVICE IDs as follows:
     // 0 = SP605, 1 = PCIeScreamer R1, 2 = AC701, 3 = PCIeScreamer R2, 4 = Screamer M2, 5 = NeTV2, 6-7 = RaptorDMA
     parameter       PARAM_DEVICE_ID = 5,
