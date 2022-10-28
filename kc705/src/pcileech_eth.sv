@@ -7,27 +7,22 @@
 //
 
 `timescale 1ns / 1ps
-`include "FC1003_MII.vh"
+`include "FC1004_RGMII.vh"
 
 module pcileech_eth (
     // SYS
-    input               clk,                // 100MHz CLK
-    input               rst,
+    input               clk,                // 125MHz CLK
+    (* MARK_DEBUG="true" *) input               rst,
     
-    //MAC/MII
-    output MII_REF_CLK_25M,        // MII continous 25 MHz reference clock
-    output MII_RST_N,              // Phy reset, active low
-    input  MII_COL,                // Collision detect
-    input  MII_CRS,                // Carrier sense
-    input  MII_RX_CLK,             // Receive clock
-    input  MII_CRS_DV,             // Receive data valid
-    input  [3:0] MII_RXD,          // Receive data
-    input  MII_RXERR,              // Receive error
-    input  MII_TX_CLK,             // Transmit clock
-    output MII_TXEN,               // Transmit enable
-    output [3:0] MII_TXD,          // Transmit data
-    output MII_MDC,                // Management clock
-    inout  MII_MDIO,               // Management data
+    //MAC/RGMII
+    output RGMII_TXC,              // 
+    output [3:0] RGMII_TXD,        // 
+    output RGMII_TX_CTL,           // 
+    input  RGMII_RXC,              // 
+    input  [3:0] RGMII_RXD,        // 
+    input  RGMII_RX_CTL,           // 
+    output RGMII_MDC,              // 
+    inout  RGMII_MDIO,             // 
     
     // CONFIG
     input   [31:0]      cfg_static_addr,
@@ -65,8 +60,8 @@ module pcileech_eth (
     // green on = tcp connection
     // ----------------------------------------------------
     
-    reg f_dhcp_is_enabled = 1'b1;
-    wire f_dhcp_ip_ok;
+    (* MARK_DEBUG="true" *) reg f_dhcp_is_enabled = 1'b1;
+    (* MARK_DEBUG="true" *) wire f_dhcp_ip_ok;
     wire led_dimmer = tickcount64[9] & tickcount64[10]; 
     
     always @ ( posedge clk )
@@ -80,8 +75,8 @@ module pcileech_eth (
     // Data Transfer ETH -> FIFO
     // ----------------------------------------------------
     
-    wire [7:0]  UDP0_RxData;
-    wire        UDP0_RxValid;
+    (* MARK_DEBUG="true" *) wire [7:0]  UDP0_RxData;
+    (* MARK_DEBUG="true" *) wire        UDP0_RxValid;
     reg [3:0]   dout_RxValid4 = 4'b0000;
     assign dout_valid = (dout_RxValid4 == 4'b1111);
     
@@ -101,16 +96,16 @@ module pcileech_eth (
     // Data Transfer FIFO -> ETH
     // ----------------------------------------------------
     
-    wire        UDP0_TxReady;
+    (* MARK_DEBUG="true" *) wire        UDP0_TxReady;
     reg [3:0]   din_TxValid4 = 4'b0000;
-    reg [31:0]  din_TxData32;
+    (* MARK_DEBUG="true" *) reg [31:0]  din_TxData32;
     wire        din_TxValid4_empty = (din_TxValid4 == 4'b0000) ? 1 : 0;
     
     
     reg [8:0]   UDP0_TxPacketCountDWORD = 0;
     
-    wire UDP0_TxValid = din_TxValid4[3] & UDP0_TxReady;
-    wire UDP0_TxLast = (din_TxValid4 == 4'b1000) & UDP0_TxReady & ( din_empty | (UDP0_TxPacketCountDWORD == 9'h100) );
+    (* MARK_DEBUG="true" *) wire UDP0_TxValid = din_TxValid4[3] & UDP0_TxReady;
+    (* MARK_DEBUG="true" *) wire UDP0_TxLast = (din_TxValid4 == 4'b1000) & UDP0_TxReady & ( din_empty | (UDP0_TxPacketCountDWORD == 9'h100) );
     
     
     assign din_ready = ~din_empty & ~din_wr_en & din_TxValid4_empty;
@@ -198,27 +193,37 @@ module pcileech_eth (
     // TCP Core:
     // NB! module makes use of STARTUPE2 RESOURCE
     // ----------------------------------------------------
-    FC1003_MII i_FC1003_MII(
-        .Clk                ( clk                   ),
-        .Reset              ( rst                   ),
-        .UseDHCP            ( f_dhcp_is_enabled     ),
+    FC1004_RGMII i_FC1004_RGMII(
+        .Clk                ( clk                   ),  // 125 MHz
+        .Clk_Tx             ( clk                   ),  // 125 MHz RGMII Transmit clock
+        .Reset              ( rst                   ),  // Active high
+        .UseDHCP            ( f_dhcp_is_enabled     ),  // '1' to use DHCP
         .IP_Addr            ( f_dhcp_is_enabled ? 32'h00000000 : cfg_static_addr ),
-        .IP_Ok              ( f_dhcp_ip_ok          ),
+        .IP_Ok              ( f_dhcp_ip_ok          ),  // DHCP ready
+
+        // TCP Basic Server
+        .TCP0_Service       ( 'd0                   ),  // Service
+        .TCP0_ServerPort    ( 'd0                   ),  // TCP local server port
+        .TCP0_Connected     (                       ),  //
+        .TCP0_AllAcked      (                       ),  //
+        .TCP0_nTxFree       (                       ),  //
+        .TCP0_nRxData       (                       ),  //
+        .TCP0_TxData        ( 'd0                   ),  // Transmit data
+        .TCP0_TxValid       ( 'd0                   ),  // Transmit data valid
+        .TCP0_TxReady       (                       ),  //
+        .TCP0_RxData        (                       ),  //
+        .TCP0_RxValid       (                       ),  //
+        .TCP0_RxReady       ( 'd0                   ),  // Receive data ready
     
         // MAC/RMII
-        .MII_REF_CLK_25M    ( MII_REF_CLK_25M       ),        // MII continous 25 MHz reference clock
-        .MII_RST_N          ( MII_RST_N             ),        // Phy reset, active low
-        .MII_COL            ( MII_COL               ),        // Collision detect
-        .MII_CRS            ( MII_CRS               ),        // Carrier sense
-        .MII_RX_CLK         ( MII_RX_CLK            ),        // Receive clock
-        .MII_CRS_DV         ( MII_CRS_DV            ),        // Receive data valid
-        .MII_RXD            ( MII_RXD               ),        // Receive data
-        .MII_RXERR          ( MII_RXERR             ),        // Receive error
-        .MII_TX_CLK         ( MII_TX_CLK            ),        // Transmit clock
-        .MII_TXEN           ( MII_TXEN              ),        // Transmit enable
-        .MII_TXD            ( MII_TXD               ),        // Transmit data
-        .MII_MDC            ( MII_MDC               ),        // Management clock
-        .MII_MDIO           ( MII_MDIO              ),        // Management data
+        .RGMII_TXC          ( RGMII_TXC             ),
+        .RGMII_TXD          ( RGMII_TXD             ),
+        .RGMII_TX_CTL       ( RGMII_TX_CTL          ),
+        .RGMII_RXC          ( RGMII_RXC             ),
+        .RGMII_RXD          ( RGMII_RXD             ),
+        .RGMII_RX_CTL       ( RGMII_RX_CTL          ),
+        .RGMII_MDC          ( RGMII_MDC             ),
+        .RGMII_MDIO         ( RGMII_MDIO            ),
         
         // SPI/Boot Control
         .SPI_CSn            (                       ),  // ->

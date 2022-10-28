@@ -24,7 +24,7 @@ module pcileech_kc705_top #(
     // SYS
     input           sysclk_p,
     input           sysclk_n,
-    
+    input           rst,
     // SYSTEM LEDs and BUTTONs
     output          led00,
     output          led01,
@@ -43,26 +43,25 @@ module pcileech_kc705_top #(
     input           pcie_perst_n,
     output reg      pcie_wake_n = 1'b1,
       
-    //MAC/MII
-    output MII_REF_CLK_25M,        // MII continous 25 MHz reference clock
-    output MII_RST_N,              // Phy reset, active low
-    input  MII_COL,                // Collision detect
-    input  MII_CRS,                // Carrier sense
-    input  MII_RX_CLK,             // Receive clock
-    input  MII_CRS_DV,             // Receive data valid
-    input  [3:0] MII_RXD,          // Receive data
-    input  MII_RXERR,              // Receive error
-    input  MII_TX_CLK,             // Transmit clock
-    output MII_TXEN,               // Transmit enable
-    output [3:0] MII_TXD,          // Transmit data
-    output MII_MDC,                // Management clock
-    inout  MII_MDIO               // Management data
+    //MAC/RGMII
+    output RGMII_TXC,              // 
+    output [3:0] RGMII_TXD,        // 
+    output RGMII_TX_CTL,           // 
+    input  RGMII_RXC,              // 
+    input  [3:0] RGMII_RXD,        // 
+    input  RGMII_RX_CTL,           // 
+    output RGMII_MDC,              // 
+    inout  RGMII_MDIO,             // 
+
+    output phy_reset_n,
+    input  phy_int_n
         
     );
     
     // SYS
-    wire            clk;                // 100MHz
-    wire            rst = 1'b0;
+    wire            clk;                // 125MHz
+    // wire            rst = 1'b0;
+    assign phy_reset_n = ~rst;
     
     // FIFO CTL <--> COM CTL
     IfComToFifo     dcom_fifo();
@@ -74,15 +73,10 @@ module pcileech_kc705_top #(
     IfShadow2Fifo   dshadow2fifo();
     
     // ----------------------------------------------------
-    // CLK 200MHz -> 100MHz:
+    // CLK 200MHz -> 125MHz:
     // ----------------------------------------------------
-
-    // clk_wiz i_clk_wiz(
-    //     .clkwiz_in_50       ( clk_ibufds_o          ),
-    //     .clkwiz_out_100     ( clk                   )
-    // );
     clk_wiz i_clk_wiz(
-    .clkwiz_out_100         ( clk                   ),     // output clkwiz_out_100
+    .clkwiz_out_125         ( clk                   ),     // output clkwiz_out_125
     .clk_in1_p              ( sysclk_p              ),    // input clk_in1_p
     .clk_in1_n              ( sysclk_n              ));    // input clk_in1_n
 
@@ -100,19 +94,15 @@ module pcileech_kc705_top #(
         // FIFO CTL <--> COM CTL
         .dfifo              ( dcom_fifo.mp_com      ),
         // MAC/RMII
-        .MII_REF_CLK_25M    ( MII_REF_CLK_25M       ),        // MII continous 25 MHz reference clock
-        .MII_RST_N          ( MII_RST_N             ),        // Phy reset, active low
-        .MII_COL            ( MII_COL               ),        // Collision detect
-        .MII_CRS            ( MII_CRS               ),        // Carrier sense
-        .MII_RX_CLK         ( MII_RX_CLK            ),        // Receive clock
-        .MII_CRS_DV         ( MII_CRS_DV            ),        // Receive data valid
-        .MII_RXD            ( MII_RXD               ),        // Receive data
-        .MII_RXERR          ( MII_RXERR             ),        // Receive error
-        .MII_TX_CLK         ( MII_TX_CLK            ),        // Transmit clock
-        .MII_TXEN           ( MII_TXEN              ),        // Transmit enable
-        .MII_TXD            ( MII_TXD               ),        // Transmit data
-        .MII_MDC            ( MII_MDC               ),        // Management clock
-        .MII_MDIO           ( MII_MDIO              ),        // Management data
+        .RGMII_TXC          ( RGMII_TXC             ),
+        .RGMII_TXD          ( RGMII_TXD             ),
+        .RGMII_TX_CTL       ( RGMII_TX_CTL          ),
+        .RGMII_RXC          ( RGMII_RXC             ),
+        .RGMII_RXD          ( RGMII_RXD             ),
+        .RGMII_RX_CTL       ( RGMII_RX_CTL          ),
+        .RGMII_MDC          ( RGMII_MDC             ),
+        .RGMII_MDIO         ( RGMII_MDIO            ),
+
         .eth_cfg_static_addr ( PARAM_UDP_STATIC_ADDR    ),  // <- [31:0]
         .eth_cfg_static_force ( PARAM_UDP_STATIC_FORCE  ),  // <-
         .eth_cfg_port       ( PARAM_UDP_PORT        ),  // <- [15:0]

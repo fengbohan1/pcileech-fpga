@@ -35,20 +35,15 @@ module pcileech_com (
     output              ft601_oe_n
 `endif /* ENABLE_FT601 */    
 `ifdef ENABLE_ETH
-    //MAC/MII
-    output MII_REF_CLK_25M,        // MII continous 25 MHz reference clock
-    output MII_RST_N,              // Phy reset, active low
-    input  MII_COL,                // Collision detect
-    input  MII_CRS,                // Carrier sense
-    input  MII_RX_CLK,             // Receive clock
-    input  MII_CRS_DV,             // Receive data valid
-    input  [3:0] MII_RXD,          // Receive data
-    input  MII_RXERR,              // Receive error
-    input  MII_TX_CLK,             // Transmit clock
-    output MII_TXEN,               // Transmit enable
-    output [3:0] MII_TXD,          // Transmit data
-    output MII_MDC,                // Management clock
-    inout  MII_MDIO,               // Management data
+    //MAC/RGMII
+    output RGMII_TXC,              // 
+    output [3:0] RGMII_TXD,        // 
+    output RGMII_TX_CTL,           // 
+    input  RGMII_RXC,              // 
+    input  [3:0] RGMII_RXD,        // 
+    input  RGMII_RX_CTL,           // 
+    output RGMII_MDC,              // 
+    inout  RGMII_MDIO,             // 
     input   [31:0]      eth_cfg_static_addr,
     input               eth_cfg_static_force,
     input   [15:0]      eth_cfg_port,
@@ -235,19 +230,14 @@ module pcileech_com (
         .clk                ( clk_com               ),
         .rst                ( rst                   ),
         // MAC/RMII
-        .MII_REF_CLK_25M    ( MII_REF_CLK_25M       ),        // MII continous 25 MHz reference clock
-        .MII_RST_N          ( MII_RST_N             ),        // Phy reset, active low
-        .MII_COL            ( MII_COL               ),        // Collision detect
-        .MII_CRS            ( MII_CRS               ),        // Carrier sense
-        .MII_RX_CLK         ( MII_RX_CLK            ),        // Receive clock
-        .MII_CRS_DV         ( MII_CRS_DV            ),        // Receive data valid
-        .MII_RXD            ( MII_RXD               ),        // Receive data
-        .MII_RXERR          ( MII_RXERR             ),        // Receive error
-        .MII_TX_CLK         ( MII_TX_CLK            ),        // Transmit clock
-        .MII_TXEN           ( MII_TXEN              ),        // Transmit enable
-        .MII_TXD            ( MII_TXD               ),        // Transmit data
-        .MII_MDC            ( MII_MDC               ),        // Management clock
-        .MII_MDIO           ( MII_MDIO              ),        // Management data
+        .RGMII_TXC          ( RGMII_TXC             ),
+        .RGMII_TXD          ( RGMII_TXD             ),
+        .RGMII_TX_CTL       ( RGMII_TX_CTL          ),
+        .RGMII_RXC          ( RGMII_RXC             ),
+        .RGMII_RXD          ( RGMII_RXD             ),
+        .RGMII_RX_CTL       ( RGMII_RX_CTL          ),
+        .RGMII_MDC          ( RGMII_MDC             ),
+        .RGMII_MDIO         ( RGMII_MDIO            ),
         // CFG
         .cfg_static_addr    ( eth_cfg_static_addr   ),  // <- [31:0]
         .cfg_static_force   ( eth_cfg_static_force  ),  // <-

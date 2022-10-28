@@ -5,6 +5,11 @@ set_property -dict {LOC AD12 IOSTANDARD LVDS} [get_ports sysclk_p]
 create_clock -period 5.000 -waveform {0.000 2.500} [get_ports sysclk_p]
 
 #
+# BUTTON BELOW
+#
+set_property -dict {LOC AG5   IOSTANDARD LVCMOS15} [get_ports rst]
+
+#
 # LED BELOW
 #
 set_property -dict {LOC AB8   IOSTANDARD LVCMOS15} [get_ports led00]
@@ -18,27 +23,26 @@ set_property -dict {LOC G19   IOSTANDARD LVCMOS25} [get_ports led21]
 # RMII ETH BELOW
 #
     #MAC/MII
-    set_property -dict {LOC  J21 IOSTANDARD LVCMOS25}  [get_ports MII_MDIO]              
-    set_property -dict {LOC  R23 IOSTANDARD LVCMOS25}  [get_ports MII_MDC] 
-    set_property -dict {LOC  L20 IOSTANDARD LVCMOS25}  [get_ports MII_RST_N]
-    set_property -dict {LOC  R30 IOSTANDARD LVCMOS25}  [get_ports MII_CRS] 
-    set_property -dict {LOC  W19 IOSTANDARD LVCMOS25}  [get_ports MII_COL]                
-    set_property -dict {LOC  U27 IOSTANDARD LVCMOS25}  [get_ports MII_RX_CLK] 
-    set_property -dict {LOC  V26 IOSTANDARD LVCMOS25}  [get_ports MII_RXERR]
-    set_property -dict {LOC  R28 IOSTANDARD LVCMOS25}  [get_ports MII_CRS_DV]   
-    set_property -dict {LOC  U30 IOSTANDARD LVCMOS25}  [get_ports MII_RXD[0]]  
-    set_property -dict {LOC  U25 IOSTANDARD LVCMOS25}  [get_ports MII_RXD[1]] 
-    set_property -dict {LOC  T25 IOSTANDARD LVCMOS25}  [get_ports MII_RXD[2]]     
-    set_property -dict {LOC  U28 IOSTANDARD LVCMOS25}  [get_ports MII_RXD[3]] 
+    # set_property -dict {LOC  M28 IOSTANDARD LVCMOS25}  [get_ports RGMII_TXC]
+    set_property -dict {LOC  K30 IOSTANDARD LVCMOS25}  [get_ports RGMII_TXC]  ; # from U37.E2 TXC_GTXCLK 
+    set_property -dict {LOC  N27 IOSTANDARD LVCMOS25}  [get_ports RGMII_TXD[0]] 
+    set_property -dict {LOC  N25 IOSTANDARD LVCMOS25}  [get_ports RGMII_TXD[1]] 
+    set_property -dict {LOC  M29 IOSTANDARD LVCMOS25}  [get_ports RGMII_TXD[2]] 
+    set_property -dict {LOC  L28 IOSTANDARD LVCMOS25}  [get_ports RGMII_TXD[3]] 
+    set_property -dict {LOC  M27 IOSTANDARD LVCMOS25}  [get_ports RGMII_TX_CTL] 
 
-    set_property -dict {LOC  M28 IOSTANDARD LVCMOS25}  [get_ports MII_TX_CLK] 
-    set_property -dict {LOC  M27 IOSTANDARD LVCMOS25}  [get_ports MII_TXEN]    
-    set_property -dict {LOC  N27 IOSTANDARD LVCMOS25}  [get_ports MII_TXD[0]] 
-    set_property -dict {LOC  N25 IOSTANDARD LVCMOS25}  [get_ports MII_TXD[1]] 
-    set_property -dict {LOC  M29 IOSTANDARD LVCMOS25}  [get_ports MII_TXD[2]] 
-    set_property -dict {LOC  L28 IOSTANDARD LVCMOS25}  [get_ports MII_TXD[3]] 
+    set_property -dict {LOC  U27 IOSTANDARD LVCMOS25}  [get_ports RGMII_RXC] 
+    set_property -dict {LOC  U30 IOSTANDARD LVCMOS25}  [get_ports RGMII_RXD[0]] 
+    set_property -dict {LOC  U25 IOSTANDARD LVCMOS25}  [get_ports RGMII_RXD[1]] 
+    set_property -dict {LOC  T25 IOSTANDARD LVCMOS25}  [get_ports RGMII_RXD[2]] 
+    set_property -dict {LOC  U28 IOSTANDARD LVCMOS25}  [get_ports RGMII_RXD[3]] 
+    set_property -dict {LOC  R28 IOSTANDARD LVCMOS25}  [get_ports RGMII_RX_CTL] 
 
-    set_property -dict {LOC  F16 IOSTANDARD LVCMOS25}  [get_ports MII_REF_CLK_25M]
+    set_property -dict {LOC  R23 IOSTANDARD LVCMOS25}  [get_ports RGMII_MDC] 
+    set_property -dict {LOC  J21 IOSTANDARD LVCMOS25}  [get_ports RGMII_MDIO] 
+
+    set_property -dict {LOC L20  IOSTANDARD LVCMOS25 SLEW SLOW DRIVE 12} [get_ports phy_reset_n] ;# from U37.K3 RESET_B
+    set_property -dict {LOC N30  IOSTANDARD LVCMOS25} [get_ports phy_int_n] ;# from U37.L1 INT_B
 
 set_false_path -from [get_pins {i_pcileech_fifo/_pcie_core_config_reg[*]/C}]
 set_false_path -from [get_pins i_pcileech_pcie_a7/i_pcie_7x_0/inst/inst/user_lnk_up_int_reg/C] -to [get_pins {i_pcileech_fifo/_cmd_tx_din_reg[16]/D}]
