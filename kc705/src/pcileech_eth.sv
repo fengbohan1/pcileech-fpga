@@ -193,12 +193,14 @@ module pcileech_eth (
     // TCP Core:
     // NB! module makes use of STARTUPE2 RESOURCE
     // ----------------------------------------------------
+    (*MARK_DEBUG = "true"*) wire UDP0_Connected;
+    wire clk_90;
     FC1004_RGMII i_FC1004_RGMII(
         .Clk                ( clk                   ),  // 125 MHz
-        .Clk_Tx             ( clk                   ),  // 125 MHz RGMII Transmit clock
+        .Clk_Tx             ( clk_90                ),  // 125 MHz RGMII Transmit clock
         .Reset              ( rst                   ),  // Active high
-        .UseDHCP            ( f_dhcp_is_enabled     ),  // '1' to use DHCP
-        .IP_Addr            ( f_dhcp_is_enabled ? 32'h00000000 : cfg_static_addr ),
+        .UseDHCP            ( /*f_dhcp_is_enabled*/1'b0     ),  // '1' to use DHCP
+        .IP_Addr            ( /*f_dhcp_is_enabled ? 32'h00000000 : */cfg_static_addr ),
         .IP_Ok              ( f_dhcp_ip_ok          ),  // DHCP ready
 
         // TCP Basic Server
@@ -242,7 +244,7 @@ module pcileech_eth (
         .UDP0_Reset         ( 1'b0                  ),  // <- [Reset interface, active high]
         .UDP0_Service       ( 16'h0112              ),  // <- [15:0]
         .UDP0_ServerPort    ( cfg_port              ),  // <- [15:0]
-        .UDP0_Connected     (                       ),  // ->
+        .UDP0_Connected     ( UDP0_Connected        ),  // ->
         .UDP0_OutIsEmpty    (                       ),
         .UDP0_TxData        ( din_TxData32[31:24]   ),
         .UDP0_TxValid       ( UDP0_TxValid          ),

@@ -18,13 +18,12 @@ module pcileech_kc705_top #(
     parameter       PARAM_VERSION_NUMBER_MINOR = 9,
     parameter       PARAM_CUSTOM_VALUE = 32'hffffffff,
     parameter       PARAM_UDP_STATIC_ADDR = 32'hc0a800de,   // 192.168.0.222
-    parameter       PARAM_UDP_STATIC_FORCE = 1'b0,
+    parameter       PARAM_UDP_STATIC_FORCE = 1'b1,
     parameter       PARAM_UDP_PORT = 16'h6f3a               // 28474
 ) (
     // SYS
     input           sysclk_p,
     input           sysclk_n,
-    input           rst,
     // SYSTEM LEDs and BUTTONs
     output          led00,
     output          led01,
@@ -59,9 +58,13 @@ module pcileech_kc705_top #(
     );
     
     // SYS
-    wire            clk;                // 125MHz
-    // wire            rst = 1'b0;
-    assign phy_reset_n = ~rst;
+    wire            clkwiz_out_125;     // 125MHz
+    wire            clkwiz_out_125_90;  // 125MHz 90
+    wire            clkwiz_out_100;     // 100MHz
+    wire            rst;
+    wire            locked;
+    assign phy_reset_n = locked;
+    assign rst = ~locked;
     
     // FIFO CTL <--> COM CTL
     IfComToFifo     dcom_fifo();
@@ -76,18 +79,22 @@ module pcileech_kc705_top #(
     // CLK 200MHz -> 125MHz:
     // ----------------------------------------------------
     clk_wiz i_clk_wiz(
-    .clkwiz_out_125         ( clk                   ),     // output clkwiz_out_125
-    .clk_in1_p              ( sysclk_p              ),    // input clk_in1_p
+    .clkwiz_out_125         ( clkwiz_out_125        ),     // output clkwiz_out_125
+    .clkwiz_out_125_90      ( clkwiz_out_125_90     ),     // output clkwiz_out_125_90
+    .clkwiz_out_100         ( clkwiz_out_100        ),     // output 100
+    .locked                 ( locked                ),     // output locked
+    .clk_in1_p              ( sysclk_p              ),     // input clk_in1_p
     .clk_in1_n              ( sysclk_n              ));    // input clk_in1_n
 
+    assign i_pcileech_com.i_pcileech_eth.clk_90 = clkwiz_out_125_90;
     // ----------------------------------------------------
     // BUFFERED COMMUNICATION DEVICE (ETH)
     // ----------------------------------------------------
     
     pcileech_com i_pcileech_com (
         // SYS
-        .clk                ( clk                   ),
-        .clk_com            ( clk                   ),
+        .clk                ( clkwiz_out_100        ),
+        .clk_com            ( clkwiz_out_125        ),
         .rst                ( rst                   ),
         .led_state_txdata   ( led10                 ),  // ->
         .led_state_invert   ( 1'b0                  ),  // <-
@@ -120,7 +127,7 @@ module pcileech_kc705_top #(
         .PARAM_VERSION_NUMBER_MINOR ( PARAM_VERSION_NUMBER_MINOR    ),
         .PARAM_CUSTOM_VALUE         ( PARAM_CUSTOM_VALUE            )
     ) i_pcileech_fifo (
-        .clk                ( clk                   ),
+        .clk                ( clkwiz_out_100        ),
         .rst                ( rst                   ),
         .pcie_present       ( 1'b1                  ),
         .pcie_perst_n       ( pcie_perst_n          ),
@@ -138,7 +145,7 @@ module pcileech_kc705_top #(
     // ----------------------------------------------------
     
     pcileech_pcie_a7 i_pcileech_pcie_a7(
-        .clk_100            ( clk                   ),
+        .clk_100            ( clkwiz_out_100        ),
         .rst                ( rst                   ),
         // PCIe fabric
         .pcie_tx_p          ( pcie_tx_p             ),
