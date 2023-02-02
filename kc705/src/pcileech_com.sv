@@ -9,8 +9,6 @@
 //
 
 `timescale 1ns / 1ps
-`define ENABLE_ETH
-//`define ENABLE_FT601
 
 module pcileech_com (
     // SYS
@@ -22,19 +20,7 @@ module pcileech_com (
 
     // TO/FROM FIFO
     IfComToFifo.mp_com  dfifo,
-
-`ifdef ENABLE_FT601
-    // FT601
-    inout   [31:0]      ft601_data,
-    output  [3:0]       ft601_be,
-    input               ft601_rxf_n,
-    input               ft601_txe_n,
-    output              ft601_wr_n,
-    output              ft601_siwu_n,
-    output              ft601_rd_n,
-    output              ft601_oe_n
-`endif /* ENABLE_FT601 */    
-`ifdef ENABLE_ETH
+ 
     //MAC/RGMII
     output RGMII_TXC,              // 
     output [3:0] RGMII_TXD,        // 
@@ -49,7 +35,6 @@ module pcileech_com (
     input   [15:0]      eth_cfg_port,
     output              eth_led_state_red,
     output              eth_led_state_green
-`endif /* ENABLE_ETH */
     );
 
     // ----------------------------------------------------------------------------
@@ -147,7 +132,6 @@ module pcileech_com (
     wire        com_tx_prog_full;
     wire        com_tx_prog_empty;
     
-    wire        ft601_bug_workaround;
     wire        out_buffer1_almost_full;
 
     assign dfifo.com_din_ready = ~out_buffer1_almost_full;
@@ -156,8 +140,8 @@ module pcileech_com (
     fifo_32_32_clk1_comtx i_fifo_32_32_clk1_comtx(
         .clk            ( clk_com                   ),
         .srst           ( rst                       ),
-        .din            ( ft601_bug_workaround ? 32'h66665555 : com_tx_data ),
-        .wr_en          ( com_tx_wr_en | ft601_bug_workaround ),
+        .din            ( com_tx_data               ),
+        .wr_en          ( com_tx_wr_en              ),
         .rd_en          ( core_din_ready            ),
         .dout           ( core_din                  ),
         .full           (                           ),
@@ -182,48 +166,8 @@ module pcileech_com (
     );
 
     // ----------------------------------------------------
-    // FT601 USB3 BELOW:
-    // ----------------------------------------------------
-`ifdef ENABLE_FT601
-
-    reg  __d_ft601_txe_n;
-    always @ ( posedge clk_com )
-        __d_ft601_txe_n <= ft601_txe_n;
-    // FTDI have a bug ( in chip or driver ) which doesn't terminate transfer if
-    // even multiple of 1024 bytes are transmitted. Always insert five (5) MAGIC
-    // DWORD (0x66665555) in beginning of stream to mitigate this.  Since normal
-    // data size is always a multiple of 32-bytes/256-bits this will resolve the
-    // issue. 
-    assign ft601_bug_workaround = com_tx_prog_empty & __d_ft601_txe_n & ~com_tx_wr_en;
-    
-    pcileech_ft601 i_pcileech_ft601(
-        // SYS
-        .clk                ( clk_com               ),
-        .rst                ( rst                   ),
-        // TO/FROM FT601 PADS
-        .FT601_DATA         ( ft601_data            ),
-        .FT601_BE           ( ft601_be              ),
-        .FT601_TXE_N        ( ft601_txe_n           ),
-        .FT601_RXF_N        ( ft601_rxf_n           ),
-        .FT601_SIWU_N       ( ft601_siwu_n          ),
-        .FT601_WR_N         ( ft601_wr_n            ),
-        .FT601_RD_N         ( ft601_rd_n            ),
-        .FT601_OE_N         ( ft601_oe_n            ),
-        // TO/FROM FIFO
-        .dout               ( com_rx_data32         ),  // -> [31:0]
-        .dout_valid         ( com_rx_valid32        ),  // ->        
-        .din                ( core_din              ),  // <- [31:0]
-        .din_empty          ( core_din_empty        ),  // <-
-        .din_wr_en          ( core_din_wr_en        ),  // <-
-        .din_req_data       ( core_din_ready        )   // ->
-    );
-`endif /* ENABLE_FT601 */
-
-    // ----------------------------------------------------
     // UDP Ethernet Below:
     // ----------------------------------------------------
-`ifdef ENABLE_ETH
-    assign ft601_bug_workaround = 1'b0;
 
     pcileech_eth i_pcileech_eth(
         // SYS
@@ -253,6 +197,5 @@ module pcileech_com (
         .din_wr_en          ( core_din_wr_en        ),  // <-
         .din_ready          ( core_din_ready        )   // ->       
     );
-`endif /* ENABLE_ETH */
 
 endmodule
