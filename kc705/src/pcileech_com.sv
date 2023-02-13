@@ -79,13 +79,13 @@ module pcileech_com (
     //    due to previous 32->64 conversion this will be fine if: 2*clk_com < clk. 
     // ----------------------------------------------------------------------------
     
-    wire [31:0] com_rx_data32;
-    wire        com_rx_valid32;
-    reg [63:0]  com_rx_data64;
-    reg [1:0]   com_rx_valid64_dw;
-    wire        com_rx_valid64 = com_rx_valid64_dw[0] & com_rx_valid64_dw[1];
-    wire [63:0] com_rx_dout;
-    wire        com_rx_valid;
+    (*mark_debug = "true"*) wire [31:0] com_rx_data32;
+    (*mark_debug = "true"*) wire        com_rx_valid32;
+    (*mark_debug = "true"*) reg [63:0]  com_rx_data64;
+    (*mark_debug = "true"*) reg [1:0]   com_rx_valid64_dw;
+    (*mark_debug = "true"*) wire        com_rx_valid64 = com_rx_valid64_dw[0] & com_rx_valid64_dw[1];
+    (*mark_debug = "true"*) wire [63:0] com_rx_dout;
+    (*mark_debug = "true"*) wire        com_rx_valid;
    
     always @ ( posedge clk_com )
         if ( rst | (~com_rx_valid32 & com_rx_valid64_dw[0] & com_rx_valid64_dw[1]) )

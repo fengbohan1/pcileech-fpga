@@ -26,6 +26,29 @@ module pcileech_pcie_tlp_a7(
     IfShadow2Tlp.tlp        dshadow2tlp
     );
     
+    (* mark_debug = "true"*)wire    [63:0]      tlp_tx_data;
+    (* mark_debug = "true"*)wire    [7:0]       tlp_tx_keep;
+    (* mark_debug = "true"*)wire                tlp_tx_last;
+    (* mark_debug = "true"*)wire                tlp_tx_valid;
+    (* mark_debug = "true"*)wire                tlp_tx_ready;
+
+    (* mark_debug = "true"*)wire    [63:0]      tlp_rx_data;
+    (* mark_debug = "true"*)wire    [7:0]       tlp_rx_keep;
+    (* mark_debug = "true"*)wire                tlp_rx_last;
+    (* mark_debug = "true"*)wire                tlp_rx_valid;
+    (* mark_debug = "true"*)wire                tlp_rx_ready;
+
+    assign tlp_tx_data  = tlp_tx.data;
+    assign tlp_tx_keep  = tlp_tx.keep;
+    assign tlp_tx_last  = tlp_tx.last;
+    assign tlp_tx_valid = tlp_tx.valid;
+    assign tlp_tx_ready = tlp_tx.ready;
+
+    assign tlp_rx_data  = tlp_rx.data;
+    assign tlp_rx_keep  = tlp_rx.keep;
+    assign tlp_rx_last  = tlp_rx.last;
+    assign tlp_rx_valid = tlp_rx.valid;
+    assign tlp_rx_ready = tlp_rx.ready;
     // ------------------------------------------------------------------------
     // Convert received TLPs from PCIe core and transmit onwards to FT601
     // FIFO depth: 512 / 64-bits.

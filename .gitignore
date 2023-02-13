@@ -2,4 +2,6 @@
 *.str
 *.jou
 *.log
+*.dmp
 /kc705/.Xil
+kc705/pcie_7x_0_ex/*
